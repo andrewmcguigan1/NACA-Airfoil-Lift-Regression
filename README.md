@@ -1,11 +1,20 @@
-# EGM 3344 Final Project (Fall 2025)
-## Polynomial regression of airfoil lift data + numerical stability of least-squares solvers
+# NACA Airfoil Lift Regression: Numerical Stability of Least-Squares Solvers
+
+**EGM 3344 Numerical Methods final project · University of Florida · Fall 2025 · five-person team**
 
 This repository contains a MATLAB implementation of a regression problem (fit lift coefficient vs.
-angle of attack) and a numerical-analysis comparison of several least-squares solution approaches.
+angle of attack for NACA 2412, 2414, and 2415 airfoils) and a numerical-analysis comparison of several
+least-squares solution approaches.
 
 The core theme is **how algorithm choice and problem conditioning affect accuracy and stability**
 as the regression model becomes more complex (higher polynomial degree).
+
+## Results at a glance (NACA 2412)
+
+* **Linear fit:** RMSE = 0.338, R² = 0.962, condition number of X ≈ 15.
+* **Conditioning blows up fast:** the condition number of the Vandermonde matrix grows from about 236 at degree 2 to about 41 million at degree 6.
+* **Solver breakdown:** Householder QR fails at degree 12 and Cholesky on the normal equations fails at degree 14, while Givens QR stays stable through degree 15.
+* **Recommendation:** low-degree fits (degrees 1–3) solved with Givens QR give the best balance of accuracy and stability; leave-one-out cross validation error stays low through degree 4 and grows sharply past degree 10.
 
 ---
 
@@ -32,7 +41,6 @@ This project uses a small dataset of $(\alpha, C_L)$ measurements for NACA 24xx 
 | `Project.m` | Main driver script: builds regression models, runs comparisons, prints tables, and generates plots. |
 | `givens.m` | Custom QR factorization for least squares using **Givens rotations** (returns $R$ and $Q^T b$). |
 | `qrfact.m` | QR factorization using **Householder reflections** (provided “from textbook” style). |
-| `final_proj_instructions.pdf` | Course project description / requirements handout. |
 
 ---
 
@@ -74,8 +82,8 @@ $$
 \min_{\beta}\ \|X\beta - y\|_2.
 $$
 
-The numerical question is not “can we solve it?” but rather “can we solve it **without making the
-computer cry** when $X$ becomes ill-conditioned?”
+The numerical question is not whether we can solve it, but whether we can solve it **accurately**
+when $X$ becomes ill-conditioned.
 
 ---
 
